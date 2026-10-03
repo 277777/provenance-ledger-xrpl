@@ -1,0 +1,17 @@
+{
+  "name": "provenance-ledger-xrpl",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Trust-governed XRPL image provenance DApp with DIDs, native Credentials, edit chains and cautious verification.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/server.js",
+    "demo": "XRPL_MODE=mock node src/server.js",
+    "start:devnet": "XRPL_MODE=devnet node src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "xrpl": "^4.6.0"
+  }
+}
