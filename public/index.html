@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="XRPL-backed image provenance research DApp."><title>Provenance Ledger · XRPL</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23090b10'/%3E%3Cpath d='M17 20h16a11 11 0 010 22H17V20zm8 7v8h8a4 4 0 000-8h-8z' fill='%23a7f36b'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">P</span><div><strong>Provenance Ledger</strong><small>XRPL research DApp</small></div></div>
+    <nav aria-label="Workspace">
+      <button class="nav active" data-view="verify"><span>01</span>Verify</button>
+      <button class="nav" data-view="governance"><span>02</span>Governance</button>
+      <button class="nav" data-view="provider"><span>03</span>Provider gateway</button>
+      <button class="nav" data-view="editor"><span>04</span>Trusted editor</button>
+      <button class="nav" data-view="platform"><span>05</span>Platform label</button>
+      <button class="nav" data-view="lab"><span>06</span>Robustness lab</button>
+      <button class="nav" data-view="audit"><span>07</span>Research audit</button>
+    </nav>
+    <div class="network" id="network"><i></i><div><strong>Connecting</strong><small>Checking XRPL</small></div></div>
+  </aside>
+
+  <main>
+    <header class="topbar"><div><span class="eyebrow" id="viewNumber">PUBLIC VERIFICATION</span><h1 id="viewTitle">Check an image’s provenance</h1></div><span class="principle">No proof ≠ human-made</span></header>
+
+    <section class="view active" id="verifyView">
+      <div class="two-col">
+        <form class="panel focal" id="verifyForm"><div class="panel-head"><h2>Drop an image</h2><span>Processed locally</span></div>
+          <label class="drop" for="verifyFile"><input id="verifyFile" type="file" accept="image/*" required><b>Choose image</b><small id="verifyFileName">PNG, JPEG or WebP</small></label>
+          <div class="hashes" id="verifyHashes" hidden><label>Exact SHA-256<code id="verifySha"></code></label><label>Perceptual dHash<code id="verifyPhash"></code></label></div>
+          <button class="primary" id="verifyButton">Verify evidence</button>
+        </form>
+        <div class="panel result" id="verifyResult"><div class="empty"><span>◎</span><h3>No image checked yet</h3><p>Exact cryptographic proof and perceptual similarity are always reported separately.</p></div></div>
+      </div>
+      <div class="legend"><div><b>Verified</b><span>Exact hash + valid signature + trusted role + XRPL transaction</span></div><div><b>Likely derivative</b><span>Similarity only; never presented as proof</span></div><div><b>Unknown</b><span>No recognised evidence, not evidence of human origin</span></div></div>
+    </section>
+
+    <section class="view" id="governanceView">
+      <div class="intro"><p>The authority controls who may claim a trusted origin. It writes a DID for each actor, issues a native XRPL role Credential, and the actor accepts it.</p></div>
+      <div class="panel"><div class="panel-head"><h2>Role registry</h2><span>Authority-only</span></div>
+        <label class="secret">Authority access key<input id="authorityKey" value="authority-demo-key" type="password"></label>
+        <div class="actor-list" id="governanceActors"></div>
+      </div>
+    </section>
+
+    <section class="view" id="providerView">
+      <div class="intro"><p>This is a protected provider integration point—not a public declaration form. In production the model service calls it automatically when generation finishes.</p></div>
+      <form class="panel form" id="issueForm"><div class="panel-head"><h2>Automatic origin issuance</h2><span>Trusted provider only</span></div>
+        <div class="grid"><label>Provider<select id="issueActor"></select></label><label>Provider access key<input id="issueKey" type="password" value="aurora-ai-demo-key"></label><label>Model<input id="issueModel" value="Aurora Image 1" required></label></div>
+        <label class="drop compact" for="issueFile"><input id="issueFile" type="file" accept="image/*" required><b>Choose generated output</b><small id="issueFileName">The gateway fingerprints it automatically</small></label>
+        <div class="hashes" id="issueHashes" hidden><label>Exact SHA-256<code id="issueSha"></code></label><label>Perceptual dHash<code id="issuePhash"></code></label></div>
+        <button class="primary" id="issueButton">Sign manifest and write ISSUE to XRPL</button><div class="feedback" id="issueFeedback" hidden></div>
+      </form>
+    </section>
+
+    <section class="view" id="editorView">
+      <div class="intro"><p>A registered parent is mandatory. The editor checks the exact source, records every declared action and human/AI contribution, signs a child manifest, then writes DERIVE to XRPL.</p></div>
+      <form class="panel form" id="deriveForm"><div class="panel-head"><h2>Provenance-preserving edit</h2><span>Credentialed editor only</span></div>
+        <div class="grid"><label>Editor<select id="editorActor"></select></label><label>Editor access key<input id="editorKey" type="password" value="studio-editor-demo-key"></label><label>Parent record<select id="parentAsset"></select></label></div>
+        <div class="file-pair"><label class="drop compact" for="parentFile"><input id="parentFile" type="file" accept="image/*" required><b>1. Exact registered source</b><small id="parentFileName">Must match selected parent</small></label><label class="drop compact" for="childFile"><input id="childFile" type="file" accept="image/*" required><b>2. Edited output</b><small id="childFileName">Receives the child credential</small></label></div>
+        <label>Edit actions<input id="editActions" placeholder="Crop; colour grade; generative fill" required></label>
+        <div class="contribution"><label>AI contribution <b id="aiValue">40%</b><input id="aiPercent" type="range" min="0" max="100" value="40"></label><div class="bar"><i id="aiBar"></i></div><span>Human <b id="humanValue">60%</b></span></div>
+        <button class="primary" id="deriveButton">Verify parent and write DERIVE to XRPL</button><div class="feedback" id="deriveFeedback" hidden></div>
+      </form>
+    </section>
+
+    <section class="view" id="platformView">
+      <div class="intro"><p>This mock social platform does not decide truth itself. It asks the public verifier and turns the result into a cautious user-facing label.</p></div>
+      <div class="phone"><div class="phone-head"><b>Stream</b><span>•••</span></div><div class="post"><div class="avatar"></div><div><b>Example creator</b><small>@creator · now</small></div><label class="post-image" for="platformFile"><input id="platformFile" type="file" accept="image/*"><span id="platformPrompt">Choose an image to preview</span><img id="platformPreview" alt="Selected upload" hidden></label><div class="platform-label" id="platformLabel">No provenance check</div></div></div>
+    </section>
+
+    <section class="view" id="labView">
+      <div class="intro warning"><p>The lab intentionally accepts any image for robustness research. It never creates or claims provenance. Use the Trusted Editor when an edit should remain in the provenance chain.</p></div>
+      <div class="panel form"><label class="drop compact" for="labFile"><input id="labFile" type="file" accept="image/*"><b>Choose a test image</b><small id="labFileName">Registered or unregistered is allowed for research</small></label>
+        <div class="lab-actions"><button data-transform="jpeg" disabled>JPEG recompress</button><button data-transform="resize" disabled>Resize 50%</button><button data-transform="crop" disabled>Crop 10%</button><button data-transform="frame" disabled>Screenshot frame</button></div>
+        <p class="fineprint">Outputs are downloaded without a credential. Their exact hash will fail; perceptual matching may recover a likely relationship.</p></div>
+    </section>
+
+    <section class="view" id="auditView">
+      <div class="stats" id="stats"></div><div class="audit-grid"><div class="panel"><div class="panel-head"><h2>Trusted actors</h2><span>DID + Credential</span></div><div id="auditActors"></div></div><div class="panel"><div class="panel-head"><h2>Ledger timeline</h2><span>Append-only</span></div><div id="assetTimeline"></div></div></div>
+    </section>
+  </main>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
